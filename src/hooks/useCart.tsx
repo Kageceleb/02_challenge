@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { api } from "../services/api";
 import { CartProduct, Product, Stock } from "../types";
+import { useStock } from "./useStock";
 
 interface CartProviderProps {
   children: ReactNode;
@@ -22,6 +23,7 @@ interface CartContextData {
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
+  const { stock } = useStock();
   const [cart, setCart] = useState<CartProduct[]>(() => {
     const storagedCart = localStorage.getItem("@RocketShoes:cart");
 
@@ -34,6 +36,12 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (product: Product) => {
     try {
+      const currentCartAmount =
+        cart.find((item) => item.id === product.id)?.amount || 0;
+      //no more stock
+      if (currentCartAmount >= stock[product.id]) {
+        throw new Error("não há no estoque");
+      }
       const updatedCart: CartProduct[] = cart.map((item) => {
         if (product.id !== item.id) return item;
         return { ...item, amount: item.amount + 1 };
@@ -48,8 +56,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
       //update amount
       localStorage.setItem("@RocketShoes:cart", JSON.stringify(cart));
-    } catch {
-      // TODO
+    } catch (error) {
+      console.log(error);
     }
   };
 

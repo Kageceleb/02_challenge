@@ -25,6 +25,6 @@ export const useStock = () => {
       .catch(function (error) {
         console.log(error);
       });
-  });
+  }, []);
   return { stock };
 };
