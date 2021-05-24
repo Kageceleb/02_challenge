@@ -5,13 +5,7 @@ import { ProductList } from "./styles";
 import { api } from "../../services/api";
 import { formatPrice } from "../../util/format";
 import { useCart } from "../../hooks/useCart";
-
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
-}
+import { Product } from "../../types";
 
 interface ProductFormatted extends Product {
   priceFormatted: string;
@@ -23,7 +17,7 @@ interface CartItemsAmount {
 
 const Home = (): JSX.Element => {
   const [products, setProducts] = useState<ProductFormatted[]>([]);
-  // const { addProduct, cart } = useCart();
+  const { addProduct, cart } = useCart();
   // const cartItemsAmount = cart.reduce((sumAmount, product) => {
   //   // TODO
   // }, {} as CartItemsAmount)
@@ -42,8 +36,8 @@ const Home = (): JSX.Element => {
 
     LoadProducts();
   }, []);
-  function handleAddProduct(id: number) {
-    // TODO
+  function handleAddProduct(product: Product) {
+    addProduct(product);
   }
   return (
     <ProductList>
@@ -56,7 +50,7 @@ const Home = (): JSX.Element => {
             <button
               type="button"
               data-testid="add-product-button"
-              onClick={() => handleAddProduct(product.id)}
+              onClick={() => handleAddProduct(product)}
             >
               <div data-testid="cart-product-quantity">
                 <MdAddShoppingCart size={16} color="#FFF" />
