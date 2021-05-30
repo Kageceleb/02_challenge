@@ -26,13 +26,19 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const { stock } = useStock();
   const [cart, setCart] = useState<CartProduct[]>(() => {
     const storagedCart = localStorage.getItem("@RocketShoes:cart");
-
-    // if (storagedCart) {
-    //   return JSON.parse(storagedCart);
-    // }
+    if (storagedCart) {
+      return JSON.parse(storagedCart);
+    }
 
     return [];
   });
+  const updateCartAndStorage = (updateCart: CartProduct[]) => {
+    setCart(updateCart);
+    localStorage.setItem(
+      "@RocketShoes:cart",
+      JSON.stringify(updateCart, null, 2)
+    );
+  };
 
   const addProduct = async (product: Product) => {
     try {
@@ -49,13 +55,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if (!updatedCart.find((p) => p.id === product.id)) {
         updatedCart.push({ ...product, amount: 1 });
       }
-      // if (updatedCart.find((p) => p.amount >= stock.)
-      setCart(updatedCart);
+      updateCartAndStorage(updatedCart);
 
       console.log(updatedCart);
-
       //update amount
-      localStorage.setItem("@RocketShoes:cart", JSON.stringify(cart));
     } catch (error) {
       console.log(error);
     }
@@ -63,9 +66,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      // TODO
-    } catch {
-      // TODO
+      const updatedCart = cart.filter((p) => p.id !== productId);
+      updateCartAndStorage(updatedCart);
+    } catch (error) {
+      console.log(error);
     }
   };
 
