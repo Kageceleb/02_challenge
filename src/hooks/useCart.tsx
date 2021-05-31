@@ -46,7 +46,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         cart.find((item) => item.id === product.id)?.amount || 0;
       //no more stock
       if (currentCartAmount >= stock[product.id]) {
-        throw new Error("não há no estoque");
+        toast.error("Quantidade solicitada fora de estoque");
+        return;
       }
       const updatedCart: CartProduct[] = cart.map((item) => {
         if (product.id !== item.id) return item;
@@ -57,10 +58,9 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       }
       updateCartAndStorage(updatedCart);
 
-      console.log(updatedCart);
       //update amount
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error("Erro na adição do produto");
     }
   };
 
@@ -68,8 +68,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     try {
       const updatedCart = cart.filter((p) => p.id !== productId);
       updateCartAndStorage(updatedCart);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error("Erro na remoção do produto");
     }
   };
 
@@ -77,10 +77,18 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     productId,
     amount,
   }: UpdateProductAmount) => {
+    //if (amount >= stock[productId]) {
+    //  toast.error("Quantidade solicitada fora de estoque");
+    //  return;
+    //}
     try {
-      // TODO
+      const updatedCart = cart.map((p) => {
+        if (productId !== p.id) return p;
+        return { ...p, amount: amount };
+      });
+      updateCartAndStorage(updatedCart);
     } catch {
-      // TODO
+      toast.error("Erro na alteração de quantidade do produto");
     }
   };
 
